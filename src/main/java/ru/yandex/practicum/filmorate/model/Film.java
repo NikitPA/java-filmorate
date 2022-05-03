@@ -6,6 +6,8 @@ import ru.yandex.practicum.filmorate.exceptions.IncorrectBirthdayFilm;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -17,6 +19,8 @@ public class Film {
     public static long count = 1;
     private final LocalDate BIRTHDAY_MOVIE = LocalDate.of(1895, 12, 28);
 
+    @Setter(AccessLevel.NONE)
+    private Set<Long> setLikes = new HashSet<>();
     @Null(groups = Marker.onCreate.class)
     @NotNull(groups = Marker.onUpdate.class)
     private Long id;

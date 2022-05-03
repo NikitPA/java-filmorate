@@ -1,16 +1,17 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundId;
 import ru.yandex.practicum.filmorate.model.Marker;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Validated
@@ -19,40 +20,64 @@ import java.util.Map;
 @RequestMapping("/users")
 public class UserController {
 
-    private final Map<Long, User> users = new HashMap();
+    private UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
     public ResponseEntity<Map<Long, User>> getUsers() {
-        return new ResponseEntity<>(users, HttpStatus.OK);
+        return userService.getUsers();
     }
 
     @Validated(Marker.onCreate.class)
     @PostMapping
-    public ResponseEntity<Long> createUser(@Valid @RequestBody User user) {
-        user.setId(User.count++);
-        users.put(user.getId(), user);
-        log.info("Объект User добавлен");
-        return new ResponseEntity<>(user.getId(), HttpStatus.OK);
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+        userService.createUser(user);
+        return new ResponseEntity<>(user , HttpStatus.OK);
     }
 
     @Validated(Marker.onUpdate.class)
     @PutMapping
-    public ResponseEntity<Long> updateUser(@Valid @RequestBody User updateUser) {
-        update(updateUser);
-        log.info("Объект User обновлён");
-        return new ResponseEntity<>(updateUser.getId(), HttpStatus.OK);
+    public ResponseEntity<User> updateUser(@Valid @RequestBody User updateUser) {
+        userService.updateUser(updateUser);
+        return new ResponseEntity<>(updateUser , HttpStatus.OK);
     }
 
-    private void update(User updateUser) {
-        User user = users.get(updateUser.getId());
-        if (user != null) {
-            user.setLogin(updateUser.getLogin());
-            user.setEmail(updateUser.getEmail());
-            user.setCorrectName(updateUser.getName());
-            user.setBirthday(updateUser.getBirthday());
-        } else {
-            throw new NotFoundId("Пользователя не существует");
-        }
-        users.put(user.getId(), user);
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable(name = "id") Long id) {
+        User userById = userService.getUserById(id);
+        return new ResponseEntity<>(userById , HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/friends/{friendId}")
+    public ResponseEntity<List<User>> addToFriends(@PathVariable(name = "id") Long id ,
+                                                   @PathVariable(name = "friendId") Long friendId){
+        userService.addToFriends(id , friendId);
+        User userById = userService.getUserById(id);
+        User userByIdFriend = userService.getUserById(friendId);
+        return new ResponseEntity<>(List.of(userById , userByIdFriend) , HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public ResponseEntity<String> removeFromFriends(@PathVariable(name = "id") Long id ,
+                                             @PathVariable(name = "friendId") Long friendId){
+        userService.removeFromFriends(id , friendId);
+        return ResponseEntity.ok("valid");
+    }
+
+    @GetMapping("/{id}/friends")
+    public ResponseEntity<List<User>> getListAllFriends(@PathVariable(name = "id") Long id){
+        List<User> listAllFriends = userService.getListAllFriends(id);
+        return new ResponseEntity<>(listAllFriends , HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public ResponseEntity<List<User>> getCommonFriends(@PathVariable(name = "id") Long id,
+                                                   @PathVariable(name = "otherId") Long otherId){
+        List<User> commonFriends = userService.getCommonFriends(id, otherId);
+        return new ResponseEntity<>(commonFriends , HttpStatus.OK);
     }
 }
