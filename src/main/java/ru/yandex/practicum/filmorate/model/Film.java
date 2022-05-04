@@ -38,14 +38,14 @@ public class Film {
         this.name = name;
         this.description = description;
         this.duration = duration;
-        this.releaseDate = setCorrectReleaseDate(releaseDate);
+        setCorrectReleaseDate(releaseDate);
     }
 
-    public LocalDate setCorrectReleaseDate(LocalDate releaseDate) {
+    public void setCorrectReleaseDate(LocalDate releaseDate) {
         if (releaseDate.isBefore(BIRTHDAY_MOVIE)) {
             log.info("Не корректная дата создания фильма");
             throw new IncorrectBirthdayFilm("Дата создание фильмов 1895.12.28");
         }
-        return releaseDate;
+        this.releaseDate = releaseDate;
     }
 }
