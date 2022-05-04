@@ -26,7 +26,7 @@ public class Film {
     private Long id;
     @NotEmpty
     private String name;
-    @Size(max = 200)
+    @Size(min = 1, max = 200)
     private String description;
     @Min(0)
     private int duration;
@@ -42,7 +42,7 @@ public class Film {
     }
 
     public LocalDate setCorrectReleaseDate(LocalDate releaseDate) {
-        if (releaseDate.isBefore(releaseDate)) {
+        if (releaseDate.isBefore(BIRTHDAY_MOVIE)) {
             log.info("Не корректная дата создания фильма");
             throw new IncorrectBirthdayFilm("Дата создание фильмов 1895.12.28");
         }
