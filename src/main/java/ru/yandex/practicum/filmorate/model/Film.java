@@ -17,7 +17,7 @@ import java.util.Set;
 public class Film {
 
     public static long count = 1;
-    private final LocalDate BIRTHDAY_MOVIE = LocalDate.of(1895, 12, 28);
+    public static final LocalDate BIRTHDAY_MOVIE = LocalDate.of(1895, 12, 28);
 
     @Setter(AccessLevel.NONE)
     private Set<Long> setLikes = new HashSet<>();
