@@ -24,6 +24,7 @@ public class InMemoryUserStorage implements UserStorage {
         log.info("Объект User добавлен");
     }
 
+    @Override
     public Collection<User> getUsers() {
         return users.values();
     }

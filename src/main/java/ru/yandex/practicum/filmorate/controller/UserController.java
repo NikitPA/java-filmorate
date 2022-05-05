@@ -43,14 +43,14 @@ public class UserController {
     @Validated(Marker.onUpdate.class)
     @PutMapping
     public ResponseEntity<User> updateUser(@Valid @RequestBody User updateUser) {
-        userService.updateUser(updateUser);
-        return new ResponseEntity<>(updateUser, HttpStatus.OK);
+        User user = userService.updateUser(updateUser);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable(name = "id") Long id) {
         if (id < 0)
-            throw new IncorrectId("Неправильное переданное id: " + id);
+            throw new IncorrectId(id);
         User userById = userService.getUserById(id);
         return new ResponseEntity<>(userById, HttpStatus.OK);
     }

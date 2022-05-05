@@ -50,7 +50,7 @@ public class FilmController {
     @GetMapping("/{id}")
     public ResponseEntity<Film> getFilmById(@PathVariable(name = "id") Long id) {
         if (id < 0)
-            throw new IncorrectId("Неправильное переданное id: " + id);
+            throw new IncorrectId(id);
         Film filmById = filmService.getFilmById(id);
         return new ResponseEntity<>(filmById, HttpStatus.OK);
     }

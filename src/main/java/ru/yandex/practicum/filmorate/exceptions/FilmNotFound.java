@@ -6,7 +6,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class FilmNotFound extends RuntimeException {
 
-    public FilmNotFound(String message) {
-        super(message);
+    public FilmNotFound(Long id) {
+        super(String.format("Фильм с id %d не найден." , id));
+
     }
 }

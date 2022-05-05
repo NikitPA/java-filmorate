@@ -20,7 +20,7 @@ public class Film {
     public static final LocalDate BIRTHDAY_MOVIE = LocalDate.of(1895, 12, 28);
 
     @Setter(AccessLevel.NONE)
-    private Set<Long> setLikes = new HashSet<>();
+    private Set<Long> likes = new HashSet<>();
     @Null(groups = Marker.onCreate.class)
     @NotNull(groups = Marker.onUpdate.class)
     private Long id;
@@ -43,8 +43,7 @@ public class Film {
 
     public void setCorrectReleaseDate(LocalDate releaseDate) {
         if (releaseDate.isBefore(BIRTHDAY_MOVIE)) {
-            log.info("Не корректная дата создания фильма");
-            throw new IncorrectBirthdayFilm("Дата создание фильмов 1895.12.28");
+            throw new IncorrectBirthdayFilm(releaseDate.toString());
         }
         this.releaseDate = releaseDate;
     }

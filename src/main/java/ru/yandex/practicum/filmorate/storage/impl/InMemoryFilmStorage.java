@@ -24,6 +24,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         log.info("Объект Film добавлен");
     }
 
+    @Override
     public Collection<Film> getFilms() {
         return films.values();
     }

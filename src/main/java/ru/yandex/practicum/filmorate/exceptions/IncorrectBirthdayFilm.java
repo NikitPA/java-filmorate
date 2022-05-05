@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class IncorrectBirthdayFilm extends RuntimeException{
 
     public IncorrectBirthdayFilm(String s) {
-        super(s);
+        super(String.format("Дата выпуска первого фильма 1895.12.28 , введенная дата: %s" , s));
     }
 }

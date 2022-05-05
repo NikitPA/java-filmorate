@@ -18,7 +18,7 @@ public class User {
     public static long count = 1;
 
     @Setter(AccessLevel.NONE)
-    private Set<Long> setFriends = new HashSet<>();
+    private Set<Long> friends = new HashSet<>();
     @Null(groups = Marker.onCreate.class)
     @NotNull(groups = Marker.onUpdate.class)
     private Long id;

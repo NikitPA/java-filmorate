@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.IncorrectId;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFound;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -30,78 +29,67 @@ public class UserService {
 
     public User getUserById(Long id) {
         return userStorage.getById(id)
-                .orElseThrow(() -> new UserNotFound(getAnswer(id)));
+                .orElseThrow(() -> new UserNotFound(id));
     }
 
     public void createUser(User user) {
         userStorage.save(user);
     }
 
-    public void updateUser(User updateUser) {
-        update(updateUser);
+    public User updateUser(User updateUser) {
+        User user = userStorage.getById(updateUser.getId()).
+                orElseThrow(() -> new UserNotFound(updateUser.getId()));
+        user.setLogin(updateUser.getLogin());
+        user.setEmail(updateUser.getEmail());
+        user.setCorrectName(updateUser.getName());
+        user.setBirthday(updateUser.getBirthday());
+        userStorage.save(user);
+        return user;
     }
 
     public void addToFriends(Long id, Long friendId) {
         User user = userStorage.getById(id)
-                .orElseThrow(() -> new UserNotFound(getAnswer(id)));
+                .orElseThrow(() -> new UserNotFound(id));
         User friendUser = userStorage.getById(friendId)
-                .orElseThrow(() -> new UserNotFound(getAnswer(friendId)));
-        user.getSetFriends().add(friendId);
-        friendUser.getSetFriends().add(id);
+                .orElseThrow(() -> new UserNotFound(friendId));
+        user.getFriends().add(friendId);
+        friendUser.getFriends().add(id);
     }
 
     public void removeFromFriends(Long id, Long friendId) {
         User user = userStorage.getById(id)
-                .orElseThrow(() -> new UserNotFound(getAnswer(id)));
+                .orElseThrow(() -> new UserNotFound(id));
         User friendUser = userStorage.getById(friendId)
-                .orElseThrow(() -> new UserNotFound(getAnswer(friendId)));
-        user.getSetFriends().remove(friendId);
-        friendUser.getSetFriends().remove(id);
+                .orElseThrow(() -> new UserNotFound(friendId));
+        user.getFriends().remove(friendId);
+        friendUser.getFriends().remove(id);
     }
 
     public List<User> getListAllFriends(Long id) {
         User user = userStorage.getById(id)
-                .orElseThrow(() -> new UserNotFound(getAnswer(id)));
-        return user.getSetFriends().stream().
+                .orElseThrow(() -> new UserNotFound(id));
+        return user.getFriends().stream().
                 map(x -> userStorage.getById(x).orElseThrow(
-                        () -> new UserNotFound(getAnswer(x)))).
+                        () -> new UserNotFound(x))).
                 collect(Collectors.toList());
     }
 
     public List<User> getCommonFriends(Long id, Long otherId) {
         User user = userStorage.getById(id)
-                .orElseThrow(() -> new UserNotFound(getAnswer(id)));
+                .orElseThrow(() -> new UserNotFound(id));
         User otherUser = userStorage.getById(otherId)
-                .orElseThrow(() -> new UserNotFound(getAnswer(otherId)));
-        Set<Long> setFriends = user.getSetFriends();
-        Set<Long> setOtherFriends = otherUser.getSetFriends();
+                .orElseThrow(() -> new UserNotFound(otherId));
+        Set<Long> setFriends = user.getFriends();
+        Set<Long> setOtherFriends = otherUser.getFriends();
         Set<Long> idUserCommon = setFriends.stream().filter(setOtherFriends::contains).collect(Collectors.toSet());
         return idUserCommon.stream().
                 map(x -> userStorage.getById(x).orElseThrow(
-                        () -> new UserNotFound(getAnswer(x)))).
+                        () -> new UserNotFound(x))).
                 collect(Collectors.toList());
     }
 
     public UserStorage getUserStorage() {
         return userStorage;
-    }
-
-    private void update(User updateUser) {
-        User user = userStorage.getById(updateUser.getId()).
-                orElseThrow(() -> new UserNotFound(getAnswer(updateUser.getId())));
-        if (user != null) {
-            user.setLogin(updateUser.getLogin());
-            user.setEmail(updateUser.getEmail());
-            user.setCorrectName(updateUser.getName());
-            user.setBirthday(updateUser.getBirthday());
-        } else {
-            throw new IncorrectId("Пользователя не существует");
-        }
-        userStorage.save(user);
-    }
-
-    private String getAnswer(Long id) {
-        return "Пользователь с id" + id + " не найден.";
     }
 }
 
