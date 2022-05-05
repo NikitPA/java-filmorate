@@ -6,6 +6,8 @@ import ru.yandex.practicum.filmorate.exceptions.IncorrectBirthdayFilm;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -15,14 +17,16 @@ import java.time.LocalDate;
 public class Film {
 
     public static long count = 1;
-    private final LocalDate BIRTHDAY_MOVIE = LocalDate.of(1895, 12, 28);
+    public static final LocalDate BIRTHDAY_MOVIE = LocalDate.of(1895, 12, 28);
 
+    @Setter(AccessLevel.NONE)
+    private Set<Long> likes = new HashSet<>();
     @Null(groups = Marker.onCreate.class)
     @NotNull(groups = Marker.onUpdate.class)
     private Long id;
     @NotEmpty
     private String name;
-    @Size(max = 200)
+    @Size(min = 1, max = 200)
     private String description;
     @Min(0)
     private int duration;
@@ -34,14 +38,13 @@ public class Film {
         this.name = name;
         this.description = description;
         this.duration = duration;
-        this.releaseDate = setCorrectReleaseDate(releaseDate);
+        setCorrectReleaseDate(releaseDate);
     }
 
-    public LocalDate setCorrectReleaseDate(LocalDate releaseDate) {
-        if (releaseDate.isBefore(releaseDate)) {
-            log.info("Не корректная дата создания фильма");
-            throw new IncorrectBirthdayFilm("Дата создание фильмов 1895.12.28");
+    public void setCorrectReleaseDate(LocalDate releaseDate) {
+        if (releaseDate.isBefore(BIRTHDAY_MOVIE)) {
+            throw new IncorrectBirthdayFilm(releaseDate.toString());
         }
-        return releaseDate;
+        this.releaseDate = releaseDate;
     }
 }

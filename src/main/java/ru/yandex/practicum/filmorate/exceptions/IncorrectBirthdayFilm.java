@@ -4,9 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class IncorrectBirthdayFilm extends IllegalArgumentException{
+public class IncorrectBirthdayFilm extends RuntimeException{
 
     public IncorrectBirthdayFilm(String s) {
-        super(s);
+        super(String.format("Дата выпуска первого фильма 1895.12.28 , введенная дата: %s" , s));
     }
 }
