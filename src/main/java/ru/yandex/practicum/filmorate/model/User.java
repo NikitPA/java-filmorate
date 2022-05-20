@@ -41,7 +41,7 @@ public class User {
     public void setCorrectName(String name) {
         if (name.isBlank()) {
             this.name = login;
-            log.info("У пользователя пустое имя ,использован логин.");
+            return;
         }
         this.name = name;
     }
