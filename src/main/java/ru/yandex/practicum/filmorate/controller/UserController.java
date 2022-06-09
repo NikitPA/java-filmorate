@@ -36,8 +36,7 @@ public class UserController {
     @Validated(Marker.onCreate.class)
     @PostMapping
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        userService.createUser(user);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(userService.createUser(user), HttpStatus.OK);
     }
 
     @Validated(Marker.onUpdate.class)
@@ -51,8 +50,7 @@ public class UserController {
     public ResponseEntity<User> getUserById(@PathVariable(name = "id") Long id) {
         if (id < 0)
             throw new IncorrectId(id);
-        User userById = userService.getUserById(id);
-        return new ResponseEntity<>(userById, HttpStatus.OK);
+        return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -72,15 +70,15 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public ResponseEntity<List<User>> getListAllFriends(@PathVariable(name = "id") Long id) {
-        List<User> listAllFriends = userService.getListAllFriends(id);
+    public ResponseEntity<Collection<User>> getListAllFriends(@PathVariable(name = "id") Long id) {
+        Collection<User> listAllFriends = userService.getListAllFriends(id);
         return new ResponseEntity<>(listAllFriends, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public ResponseEntity<List<User>> getCommonFriends(@PathVariable(name = "id") Long id,
-                                                       @PathVariable(name = "otherId") Long otherId) {
-        List<User> commonFriends = userService.getCommonFriends(id, otherId);
+    public ResponseEntity<Collection<User>> getCommonFriends(@PathVariable(name = "id") Long id,
+                                                             @PathVariable(name = "otherId") Long otherId) {
+        Collection<User> commonFriends = userService.getCommonFriends(id, otherId);
         return new ResponseEntity<>(commonFriends, HttpStatus.OK);
     }
 }

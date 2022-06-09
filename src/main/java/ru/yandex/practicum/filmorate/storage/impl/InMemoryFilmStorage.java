@@ -17,11 +17,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
 
     @Override
-    public void save(Film film) {
-        if(film.getId() == null)
-            film.setId(Film.count++);
-        films.put(film.getId(), film);
-        log.info("Объект Film добавлен");
+    public long save(Film film) {
+        return 1L;
     }
 
     @Override
@@ -32,5 +29,15 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Optional<Film> getFilmById(Long id) {
         return Optional.ofNullable(films.get(id));
+    }
+
+    @Override
+    public void update(Film film) {
+
+    }
+
+    @Override
+    public void delete(Long film_id) {
+
     }
 }

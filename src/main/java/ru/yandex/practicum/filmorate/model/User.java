@@ -5,20 +5,17 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
 @Slf4j
+@NoArgsConstructor
 public class User {
 
-    public static long count = 1;
-
-    @Setter(AccessLevel.NONE)
-    private Set<Long> friends = new HashSet<>();
     @Null(groups = Marker.onCreate.class)
     @NotNull(groups = Marker.onUpdate.class)
     private Long id;
@@ -26,12 +23,19 @@ public class User {
     private String email;
     @NotBlank
     private String login;
-    @Setter(AccessLevel.NONE)
     private String name;
     @Past
     private LocalDate birthday;
 
     public User(String email, String login, String name, LocalDate birthday) {
+        this.email = email;
+        this.login = login;
+        setCorrectName(name);
+        this.birthday = birthday;
+    }
+
+    public User(Long id, String email, String login, String name, LocalDate birthday) {
+        this.id = id;
         this.email = email;
         this.login = login;
         setCorrectName(name);
@@ -44,5 +48,14 @@ public class User {
             return;
         }
         this.name = name;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("login", login);
+        values.put("email", email);
+        values.put("name", name);
+        values.put("birthday", birthday);
+        return values;
     }
 }

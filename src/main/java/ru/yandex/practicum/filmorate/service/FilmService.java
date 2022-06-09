@@ -10,8 +10,11 @@ import ru.yandex.practicum.filmorate.exceptions.UserNotFound;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.impl.FilmDbStorage;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,21 +22,25 @@ import java.util.stream.Collectors;
 public class FilmService {
 
 
-    private final FilmStorage filmStorage;
+    private final FilmDbStorage filmStorage;
     private final UserService userService;
+    private LikeStorage likeStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserService userService) {
+    public FilmService(FilmDbStorage filmStorage,
+                       UserService userService , LikeStorage likeStorage) {
         this.filmStorage = filmStorage;
         this.userService = userService;
+        this.likeStorage = likeStorage;
     }
 
     public ResponseEntity<Collection<Film>> getFilms() {
         return new ResponseEntity<>(filmStorage.getFilms(), HttpStatus.OK);
     }
 
-    public void addFilm(Film film) {
-        filmStorage.save(film);
+    public Film addFilm(Film film) {
+        long idSaveFilm = filmStorage.save(film);
+        return getFilmById(idSaveFilm);
     }
 
     public Film getFilmById(Long id) {
@@ -47,30 +54,38 @@ public class FilmService {
         film.setDescription(updateFilm.getDescription());
         film.setDuration(updateFilm.getDuration());
         film.setCorrectReleaseDate(updateFilm.getReleaseDate());
-        filmStorage.save(film);
-        return film;
+        film.setUsersLike(updateFilm.getUsersLike());
+        film.setMpa(updateFilm.getMpa());
+        film.setGenres(updateFilm.getGenres());
+        filmStorage.update(film);
+        Film filmSearch = getFilmById(film.getId());
+        if (film.getGenres()!= null && film.getGenres().isEmpty()){
+            if (filmSearch.getGenres() == null){
+                filmSearch.setGenres(new HashSet<>());
+            }
+        }
+        return filmSearch;
     }
 
-    public Film addLike(Long id, Long userId) {
-        Film film = filmStorage.getFilmById(id).
-                orElseThrow(() -> new FilmNotFound(id));
-        User user = userService.getUserStorage().getById(userId).
-                orElseThrow(() -> new UserNotFound(userId));
-        film.getLikes().add(user.getId());
-        return film;
+    public void deleteFilm(Long film_id) {
+        if (getFilmById(film_id) != null) {
+            filmStorage.delete(film_id);
+        }
+    }
+
+    public void addLike(Long film_id, Long userId) {
+        if (getFilmById(film_id) != null && userService.getUserById(userId) != null) {
+            likeStorage.save(film_id, userId);
+        }
     }
 
     public void deleteLike(Long id, Long userId) {
-        Film film = filmStorage.getFilmById(id).
-                orElseThrow(() -> new FilmNotFound(id));
-        User user = userService.getUserStorage().getById(userId).
-                orElseThrow(() -> new UserNotFound(userId));
-        film.getLikes().remove(user.getId());
+        if (getFilmById(id) != null && userService.getUserById(userId) != null) {
+            likeStorage.delete(id, userId);
+        }
     }
 
-    public Set<Film> getTheBestPopularFilm(Long count) {
-        return filmStorage.getFilms().stream().
-                sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size()).
-                limit(count).collect(Collectors.toSet());
+    public Collection<Film> getTheBestPopularFilm(Long count) {
+        return filmStorage.getPopular(count);
     }
 }
