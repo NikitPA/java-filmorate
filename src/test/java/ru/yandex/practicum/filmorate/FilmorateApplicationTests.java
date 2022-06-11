@@ -33,14 +33,14 @@ class FilmorateApplicationTests {
 		assertThat(userOptional)
 				.isPresent()
 				.hasValueSatisfying(user ->
-						assertThat(user).hasFieldOrPropertyWithValue("id", 1)
+						assertThat(user).hasFieldOrPropertyWithValue("id", 1L)
 				);
 	}
 
 
 	@Test
 	public void testUpdateUser() {
-		User oldUser = new User(1L, "updateLogin", "update@mail.ru", "name", LocalDate.of(2001, 11, 23));
+		User oldUser = new User(1L, "update@mail.ru", "updateLogin", "name", LocalDate.of(2001, 11, 23));
 
 		userStorage.update(oldUser);
 		Optional<User> userOptional = userStorage.getUserById(1L);
@@ -49,7 +49,7 @@ class FilmorateApplicationTests {
 		assertThat(userOptional)
 				.isPresent()
 				.hasValueSatisfying(user ->
-						assertThat(user).hasFieldOrPropertyWithValue("id", 1)
+						assertThat(user).hasFieldOrPropertyWithValue("id", 1L)
 				);
 		assertThat(userOptional)
 				.isPresent()
@@ -65,14 +65,14 @@ class FilmorateApplicationTests {
 
 	@Test
 	public void testSaveUser() {
-		userStorage.save(new User(2L, "login2", "email2@mail.ru", "name2", LocalDate.of(1991, 11, 23)));
+		userStorage.save(new User(2L, "email2@mail.ru", "login2", "name2", LocalDate.of(1991, 11, 23)));
 		Optional<User> userOptional = userStorage.getUserById(2L);
 
 
 		assertThat(userOptional)
 				.isPresent()
 				.hasValueSatisfying(user ->
-						assertThat(user).hasFieldOrPropertyWithValue("id", 2)
+						assertThat(user).hasFieldOrPropertyWithValue("id", 2L)
 				);
 		assertThat(userOptional)
 				.isPresent()
@@ -94,7 +94,7 @@ class FilmorateApplicationTests {
 		assertThat(filmOptional)
 				.isPresent()
 				.hasValueSatisfying(film ->
-						assertThat(film).hasFieldOrPropertyWithValue("id", 1)
+						assertThat(film).hasFieldOrPropertyWithValue("id", 1L)
 				);
 	}
 
@@ -106,7 +106,7 @@ class FilmorateApplicationTests {
 		assertThat(filmOptional)
 				.isPresent()
 				.hasValueSatisfying(film ->
-						assertThat(film).hasFieldOrPropertyWithValue("id", 1)
+						assertThat(film).hasFieldOrPropertyWithValue("id", 1L)
 				);
 		assertThat(filmOptional)
 				.isPresent()
@@ -130,7 +130,7 @@ class FilmorateApplicationTests {
 		assertThat(filmOptional)
 				.isPresent()
 				.hasValueSatisfying(film ->
-						assertThat(film).hasFieldOrPropertyWithValue("id", 2)
+						assertThat(film).hasFieldOrPropertyWithValue("id", 2L)
 				);
 		assertThat(filmOptional)
 				.isPresent()
