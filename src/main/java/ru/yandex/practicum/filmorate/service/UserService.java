@@ -1,26 +1,27 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFound;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
     private final UserStorage userStorage;
+    private final FriendshipStorage friendshipStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage , FriendshipStorage friendshipStorage) {
         this.userStorage = userStorage;
+        this.friendshipStorage = friendshipStorage;
     }
 
     public ResponseEntity<Collection<User>> getUsers() {
@@ -28,66 +29,50 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        return userStorage.getById(id)
+        return userStorage.getUserById(id)
                 .orElseThrow(() -> new UserNotFound(id));
     }
 
-    public void createUser(User user) {
-        userStorage.save(user);
+    public User createUser(User user) {
+        if (user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+        long idSaveUser = userStorage.save(user);
+        return getUserById(idSaveUser);
     }
 
     public User updateUser(User updateUser) {
-        User user = userStorage.getById(updateUser.getId()).
+        User user = userStorage.getUserById(updateUser.getId()).
                 orElseThrow(() -> new UserNotFound(updateUser.getId()));
         user.setLogin(updateUser.getLogin());
         user.setEmail(updateUser.getEmail());
         user.setCorrectName(updateUser.getName());
         user.setBirthday(updateUser.getBirthday());
-        userStorage.save(user);
+        userStorage.update(user);
         return user;
     }
 
     public void addToFriends(Long id, Long friendId) {
-        User user = userStorage.getById(id)
+        User user = userStorage.getUserById(id)
                 .orElseThrow(() -> new UserNotFound(id));
-        User friendUser = userStorage.getById(friendId)
+        User friendUser = userStorage.getUserById(friendId)
                 .orElseThrow(() -> new UserNotFound(friendId));
-        user.getFriends().add(friendId);
-        friendUser.getFriends().add(id);
+        friendshipStorage.save(user.getId() , friendUser.getId());
     }
 
     public void removeFromFriends(Long id, Long friendId) {
-        User user = userStorage.getById(id)
-                .orElseThrow(() -> new UserNotFound(id));
-        User friendUser = userStorage.getById(friendId)
-                .orElseThrow(() -> new UserNotFound(friendId));
-        user.getFriends().remove(friendId);
-        friendUser.getFriends().remove(id);
+        if (getUserById(id) != null && getUserById(friendId) != null) {
+            friendshipStorage.delete(id, friendId);
+        }
     }
 
-    public List<User> getListAllFriends(Long id) {
-        User user = userStorage.getById(id)
-                .orElseThrow(() -> new UserNotFound(id));
-        return user.getFriends().stream().
-                map(x -> userStorage.getById(x).orElseThrow(
-                        () -> new UserNotFound(x))).
-                collect(Collectors.toList());
+    public Collection<User> getListAllFriends(Long id) {
+        return friendshipStorage.getFriends(id);
     }
 
-    public List<User> getCommonFriends(Long id, Long otherId) {
-        User user = userStorage.getById(id)
-                .orElseThrow(() -> new UserNotFound(id));
-        User otherUser = userStorage.getById(otherId)
-                .orElseThrow(() -> new UserNotFound(otherId));
-        Set<Long> setFriends = user.getFriends();
-        Set<Long> setOtherFriends = otherUser.getFriends();
-        Set<Long> idUserCommon = setFriends.stream().filter(setOtherFriends::contains).collect(Collectors.toSet());
-        return idUserCommon.stream().
-                map(x -> userStorage.getById(x).orElseThrow(
-                        () -> new UserNotFound(x))).
-                collect(Collectors.toList());
+    public Collection<User> getCommonFriends(Long id, Long otherId) {
+        return friendshipStorage.getCommonFriends(id, otherId);
     }
-
     public UserStorage getUserStorage() {
         return userStorage;
     }
