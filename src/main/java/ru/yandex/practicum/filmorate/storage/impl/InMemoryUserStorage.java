@@ -17,11 +17,9 @@ public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap();
 
     @Override
-    public void save(User user) {
-        if(user.getId() == null)
-            user.setId(User.count++);
-        users.put(user.getId(), user);
-        log.info("Объект User добавлен");
+    public long save(User user) {
+
+        return user.getId();
     }
 
     @Override
@@ -30,7 +28,17 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> getById(Long id) {
+    public Optional<User> getUserById(Long id) {
           return Optional.ofNullable(users.get(id));
+    }
+
+    @Override
+    public void update(User user) {
+
+    }
+
+    @Override
+    public void delete(Integer user_id) {
+
     }
 }

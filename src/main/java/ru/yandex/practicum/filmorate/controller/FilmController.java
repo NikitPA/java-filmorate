@@ -36,8 +36,8 @@ public class FilmController {
     @Validated(Marker.onCreate.class)
     @PostMapping
     public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
-        filmService.addFilm(film);
-        return new ResponseEntity<>(film, HttpStatus.OK);
+        Film film1 = filmService.addFilm(film);
+        return new ResponseEntity<>(film1, HttpStatus.OK);
     }
 
     @Validated(Marker.onUpdate.class)
@@ -56,10 +56,10 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public ResponseEntity<Film> addLike(@PathVariable(name = "id") Long id,
+    public ResponseEntity<String> addLike(@PathVariable(name = "id") Long id,
                                         @PathVariable(name = "userId") Long userId) {
-        Film film = filmService.addLike(id, userId);
-        return new ResponseEntity<>(film, HttpStatus.OK);
+        filmService.addLike(id, userId);
+        return new ResponseEntity<>("valid", HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
@@ -70,9 +70,9 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<Set<Film>> getTheBestPopularFilm(
+    public ResponseEntity<Collection<Film>> getTheBestPopularFilm(
             @RequestParam(name = "count", required = false, defaultValue = "10") Long count) {
-        Set<Film> theBestPopularFilm = filmService.getTheBestPopularFilm(count);
+        Collection<Film> theBestPopularFilm = filmService.getTheBestPopularFilm(count);
         return new ResponseEntity<>(theBestPopularFilm, HttpStatus.OK);
     }
 }
